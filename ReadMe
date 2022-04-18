@@ -1,1 +1,5 @@
+Randomizes a sprite's pixels with the colors of the surrounding pixels (including itself).
 
+Requires a sprite called Sprite.png.
+
+It could use some optimizations and be changed to be more effective.
