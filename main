@@ -1,0 +1,95 @@
+################################## IMPORT + SETUP ##################################
+import pygame
+import cv2
+import random
+pygame.init()
+win = pygame.display.set_mode((1600, 900), pygame.RESIZABLE)
+pygame.display.set_caption("Sprite Randomizer Creator")
+
+################################## VARIABLES ##################################
+#colorPalette = [000000, 642117, 9B3423, D1462F, FFF099, E3D378, FFFFFF, 8799AB]
+mainSprite = pygame.image.load('Sprite.png')
+currentSprite = cv2.imread('Sprite.png', -1)
+currentSpriteBlit = pygame.image.load('Sprite.png')
+newSpriteFileLocation = ("C:\\Users\\mrcat\\OneDrive\\Desktop\\Programming\\SpriteRandomizerCreator\\New Sprite.png")
+previousSprites = []
+previousSpriteIndex = 0
+canGoNext = True
+goNextTester = True
+
+################################## METHODS ##################################
+def RandomizeSprite():
+    newSprite = cv2.imread('Sprite.png', -1)
+    for i in range(newSprite.shape[0]):
+        for j in range(newSprite.shape[1]):
+            possibleColors = []
+            for k in range(3):
+                k -= 1
+                for l in range(3):
+                    l -= 1
+                    if i - k > 0 and i + k < newSprite.shape[0]:
+                        if j - l > 0 and j + l < newSprite.shape[1]:
+                            placeholderSprite = cv2.imread('Sprite.png', -1)
+                            possibleColors.append(placeholderSprite[i + k][j + l])
+            newSprite[i][j] = possibleColors[random.randint(-1, len(possibleColors) - 1)]
+
+    cv2.imwrite(newSpriteFileLocation, newSprite)
+    return newSprite
+
+def OpenPreviousSprite():
+    cv2.imwrite(newSpriteFileLocation, previousSprites[previousSpriteIndex])
+    newSprite = cv2.imread(newSpriteFileLocation, -1)
+    return newSprite
+
+################################## RUN ##################################
+run = True
+while run:
+    pygame.time.delay(2)
+
+    ################################## INPUT ##################################
+    goNextTester = True
+    for event in pygame.event.get():
+        goNextTester = False
+        if event.type == pygame.QUIT:
+            run = False
+
+        if event.type == pygame.KEYDOWN:
+            if canGoNext == True:
+                if event.key == pygame.K_LEFT:
+                    canGoNext = False
+                    if previousSpriteIndex > 4:
+                        print()
+                    elif previousSpriteIndex < len(previousSprites) - 1:
+                        previousSpriteIndex += 1
+                        currentSprite = OpenPreviousSprite()
+                        currentSpriteBlit = pygame.image.load('New Sprite.png')
+                        currentSpriteBlit.convert()
+                        currentSpriteBlit = pygame.transform.scale(currentSpriteBlit, (800, 800))
+                
+                if event.key == pygame.K_RIGHT:
+                    canGoNext = False
+                    if previousSpriteIndex > 0:
+                           previousSpriteIndex -= 1
+                           currentSprite = OpenPreviousSprite()
+                           currentSpriteBlit = pygame.image.load('New Sprite.png')
+                           currentSpriteBlit.convert()
+                           currentSpriteBlit = pygame.transform.scale(currentSpriteBlit, (800, 800))
+                    else:
+                        currentSprite = RandomizeSprite()
+                        currentSpriteBlit = pygame.image.load('New Sprite.png')
+                        currentSpriteBlit.convert()
+                        currentSpriteBlit = pygame.transform.scale(currentSpriteBlit, (800, 800))
+                        previousSprites.reverse()
+                        previousSprites.append(currentSprite)
+                        previousSprites.reverse()
+                        if len(previousSprites) > 5:
+                            previousSprites.pop(5)
+    if goNextTester == True:
+        canGoNext = True
+
+    ################################## DRAW ##################################
+    pygame.draw.rect(win, (0), (0, 0, 1600, 900))
+    win.blit(currentSpriteBlit, (0, 0))
+    pygame.display.update()
+
+pygame.quit()
